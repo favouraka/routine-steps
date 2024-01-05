@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Steps</title>
+</head>
+<body
+    class="relative"
+    x-data="Routine()">
+    <header class="p-4 border-y-1 border-gray-100 border">
+        <p class="font-semibold text-lg text-purple-600">Routine Steps</p>
+    </header>
+    <main x-data="">
+        <div class="grid grid-cols-1 p-4 gap-4">
+            <template x-for="(instruction, k) in instructions">
+                <div
+                    x-on:click="key = k" 
+                    class="p-4 w-full aspect-square rounded-md border-gray-300 border">
+                    <p x-text="instruction.title" class="text-lg font-semibold text-gray-600"></p>
+                </div>
+            </template>
+        </div>
+    </main>
+    <main 
+        x-cloak
+        x-show="key !== null"
+        class="inset-0 bg-gray-600/20 backdrop-blur fixed flex">
+        <div x-data="" class="md:max-w-2xl mx-auto bg-indigo-800 w-full text-white relative">
+            <div class="flex flex-col gap-4 relative p-4 h-full">
+                <!-- slider -->
+                <div  class="flex gap-4 items-center pt-12 z-10">
+                    <button 
+                        x-on:click="key = null" 
+                        class="text-white font-thin text-xl px-3">&times;
+                    </button>
+                    <div class="w-full gap-2 flex">
+                        <template x-for="(step, k) in instructions[key]?.tasks">
+                            <div 
+                                x-bind:class="{
+                                    'bg-white': (index > k),
+                                    'bg-purple-400': (index == k),
+                                    'bg-white/30':  (index < k),
+                                }"
+                                class="h-2 w-full rounded-lg"></div>
+                        </template>
+                    </div>
+                </div>
+                <!-- navigation -->
+                <div 
+                    x-data="{
+                        previous: async function(){
+                            this.index -= 1;
+                            await this.$nextTick();
+                            if(this.index <= 0) {
+                                this.index = 0;
+                            }
+                        },
+                        next: async function(){
+                            this.index += 1;
+                            await this.$nextTick();
+                            if(this.index >=  instructions[key]?.length){
+                                this.index = (instructions[key]?.length - 1);
+                            }
+                        }
+                    }"
+                    class="absolute inset-0 flex h-full">
+                    <div id="#previous" x-on:click="previous" class="w-1/4"></div>
+                    <div id="#next" x-on:click="next" class="w-3/4"></div>
+                </div>
+                <!-- content -->
+                <div 
+                    x-data="{
+                        step: function(){
+                            return instructions[key]?.tasks[index]
+                        }
+                    }" class="p-4 space-y-4">
+                    <!-- routine name -->
+                    <p class="text-base text-purple-500 font-semibold " x-text="instructions[key]?.title"></p>
+                    <!-- step info -->
+                    <!-- <p class="text-xl font-semibold tracking-wider" x-text="step().title"></p> -->
+                    <div class="rounded-xl bg-gray-300 h-40 w-full"></div>
+                    <p class="text-sm font-thin" x-text="step()"></p>
+                </div>
+                <!-- talk to assistant and translate buttons -->
+                <div class="absolute p-4 flex gap-4 bg-gradient-to-b from-transparent to-slate-900 inset-x-0 bottom-0">
+                    <button class="bg-gray-50/20 text-white p-3 rounded-md flex-grow-1 w-full">Chat with a helper</button>
+                    <div 
+                        x-data="{open: false}" 
+                        title="routine-translation" 
+                        class="bg-purple-700 stroke-white rounded-lg relative flex items-center">
+                        <div x-show="open" x-on:click.away="open = false" x-cloak class="absolute bottom-16 bg-white shadow-lg rounded-lg right-0 flex flex-col">
+                            <div class="p-4 border-b border-gray-500 text-neutral-800">Language</div>
+                            <div class="block p-4">
+                                <div id="google_translate_element"></div>
+                            </div>
+                        </div>
+                        <button 
+                            x-on:click="open = !open"
+                            class="px-4 p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
+                            </svg>                          
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        }
+    </script>
+        
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        
+    <script src="./service.js"></script>
+    <script src="./alpine.js"></script>
+    <script src="./tailwind.js"></script>
+</body>
+</html>
